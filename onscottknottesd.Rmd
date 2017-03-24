@@ -29,13 +29,13 @@ set.seed(42)
 
 # The approach for normality correction
 
-Tantithamthavorn et al. propose to transform the performance metrics of results prior to analysis with Scott-Knott. This transformation is based on the logarithm and defined as x'=log(x+1). In the following, we will refer to this simply as log-transformation. The plot below shows the curve of the orinal values vs the transformed values.
+Tantithamthavorn et al. propose to transform the performance metrics of results prior to analysis with Scott-Knott. This transformation is based on the logarithm and defined as x'=log(x+1). In the following, we will refer to this simply as log-transformation. The plot below shows the curve of the original values vs the transformed values.
 ```{r, echo=FALSE}
 x=(0:1000)/1000
 plot(x,log(x+1), type="l",col=1,main="Relationship of data with and without log transformation")
 ```
 
-Below, you find a (shortened and commented) version the implementation of ScottKnottESD implementation.
+Below, you find a (shortened and commented) version of the implementation of ScottKnottESD implementation. The original implementation is available on GitHub [2].
 ```{r}
 sk_esd <- function(x) {
   # log transformation  
@@ -64,13 +64,13 @@ sk_esd <- function(x) {
 
 # Aim of these examples
 
-This page gives examples for why using a log-transformation of results often does not solve problems, may cause new problems, and actually changes, to some degree, the results. Please note that all of the below evaluations will completly ignore the actual performance achieved. We only focus on how the log-transformation impacts the Scott-Knott test and the effect size correction based on Cohen's d, i.e., the ESD of ScottKnottESD. 
+This page gives examples for why using a log-transformation of results often does not solve problems, may cause new problems, and actually changes, to some degree, the results. Please note that all of the below evaluations will completely ignore the actual performance achieved. We only focus on how the log-transformation impacts the Scott-Knott test and the effect size correction based on Cohen's d, i.e., the ESD part of ScottKnottESD. 
 
 # Data
 
-For this small experiment, we use experimental data collected by applying cross-project defect prediction to data collection by Jurezcko and Madeyski. We used 62 software products for the predictions. For training, all products that were not from the same project as the target product were used. 
+For this small experiment, we use experimental data collected by applying cross-project defect prediction to data collected by Jurezcko and Madeyski. We used 62 software products for the predictions. For training, all products that were not from the same project as the target product were used. 
 
-As classifiers, we used Naive Bayes and C4.5 Decision Trees. As performance metrics we evaluted the AUC and the F-measure. 
+As classifiers, we used Naive Bayes and C4.5 Decision Trees. As performance metrics, we evaluated the AUC and the F-measure. 
 
 The following code sets up the data. 
 ```{r}
@@ -81,13 +81,13 @@ NaiveBayesFMEAS = c(0.33333333,0.18461538,0.37333333,0.40816327,0.43609023,0.266
 DecisionTreeFMEAS = c(0.42622951,0.33663366,0.19298246,0.47058824,0.40318302,0.27692308,0.55172414,0.13888889,0.27355623,0.30128205,0.24864865,0.33333333,0.15384615,0.28571429,0.49438202,0.07272727,0.40000000,0.55102041,0.42105263,0.52631579,0.33830846,0.05970149,0.60000000,0.42105263,0.53333333,0.35344828,0.40000000,0.36082474,0.39857651,0.50000000,0.26086957,0.55555556,0.54545455,0.60079051,0.18279570,0.69358670,0.40703518,0.29268293,0.30769231,0.47619048,0.35294118,0.30303030,0.27027027,0.49367089,0.27272727,0.52631579,0.60000000,0.27540984,0.30434783,0.29378531,0.39024390,0.46153846,0.55555556,0.32558140,0.37651123,0.41233766,0.36545455,0.21656051,0.36000000,0.37200737,0.34920635,0.22222222)
 ```
 
-The boxplots below visualizes the results with and without the log transformation (NB=Naive Bayes, DT=Decision Tree, FM=F-measure). 
+The boxplots below visualize the results with and without the log transformation (NB=Naive Bayes, DT=Decision Tree, FM=F-measure). 
 ```{r, echo=FALSE,  }
 boxplot(NaiveBayesAUC,log(NaiveBayesAUC+1),DecisionTreeAUC,log(DecisionTreeAUC+1), NaiveBayesFMEAS,log(NaiveBayesFMEAS+1), DecisionTreeFMEAS, log(DecisionTreeFMEAS+1), names=c("AUC NB","log(AUC+1) NB","AUC DT","log(AUC+1) DT", "FM NB","log(FM+1) NB", "FM DT", "log(FM+1) DT"),las=3, main="Data used to study the impact of the log-transformation", cex.axis=0.7)
 ```
 
 # Impact on the normality assumption of ANOVA
-Now, we test for the normaliy assumption of ANOVA with using the Shapiro-Wilk test. The null hyothesis of the test is, that the data is normally distributed. 
+Now, we test for the normaliy assumption of ANOVA with the Shapiro-Wilk test. The null hyothesis of the test is, that the data is normally distributed. 
 ```{r}
 shapiro.test(NaiveBayesAUC)$p.value
 shapiro.test(DecisionTreeAUC)$p.value
@@ -122,7 +122,7 @@ var(log(DecisionTreeFMEAS+1))
 ```
 
 
-Now, we use Levene's test for to test if homoscedasticity assumption of ANOVA. The null hypothesis of Levene's test is that the variance are the same. Levene's test is non-parametric, i.e., does not required the data to be normally distributed. Other test, e.g., the F-test or Bartelett's test require normally distributed data and can not be applied here (see above). 
+Now, we use Levene's test to test the homoscedasticity assumption of ANOVA. The null hypothesis of Levene's test is that the variances are the same. Levene's test is non-parametric, i.e., does not required the data to be normally distributed. Other tests, e.g., the F-test or Bartelett's test require normally distributed data and can not be applied here (see above). 
 ```{r}
 # First transform data into data frame
 resultsAUC = rbind(data.frame(result="NaiveBayesAUC",value=NaiveBayesAUC),data.frame(result="DecisionTreeAUC",value=DecisionTreeAUC))
@@ -144,7 +144,7 @@ leveneTest(value~factor(result), data=resultsLogFMEAS)$`Pr(>F)`[1]
 In both cases, the p-values change drastically. For AUC, the p-value is increased, for F-measure it is decreased. Fortunately, in both cases Levene's test yields the same results. 
 
 # Impact on Cohen's d
-Cohen's d is a measure for the signifance of attributes. 
+Cohen's d is a measure for the significance of attributes. 
 
 ```{r}
 cohensD(x=NaiveBayesAUC, y=DecisionTreeAUC)
@@ -156,7 +156,7 @@ After the log-transformation, we get the following results.
 cohensD(x=log(NaiveBayesAUC+1), y=log(DecisionTreeAUC+1))
 cohensD(x=log(NaiveBayesFMEAS+1), y=log(DecisionTreeFMEAS+1))
 ```
-As can be seen, the values change slightly. Again, in one case slightly weaking the effect size, in the other strengthening it.  
+The values change slightly. Again, in one case slightly weaking the effect size, in the other strengthening it.  
 
 # Why do these changes matter?
 
@@ -198,9 +198,9 @@ logxdataframe = rbind(data.frame(result="xlarge", value=log(xlarge+1)), data.fra
 leveneTest(value~factor(result), data=xdataframe)$`Pr(>F)`[1]
 leveneTest(value~factor(result), data=logxdataframe)$`Pr(>F)`[1]
 ```
-In the data without transformation, xlarge and xsmaller have the exact same variance and the data is homoscedasticity. However, when the logarithm is taken, the relative distances between the data points change, affecting the variances to such a degree that homoscedasticity is not fulfilled anymore. While this example is artifical, a difference in 0.3 between performance values of different models is actually something that could happen easily in experiments. 
+Without transformation, xlarge and xsmaller have the exact same variance and the data is homoscedastic. However, when the logarithm is applied, the relative distances between the data points change, affecting the variances to such a degree that homoscedasticity is not fulfilled anymore. While this example is artifical, a difference in 0.3 between performance values of different models is actually something that could happen easily in experiments. 
 
-Another aspect which we have not explored above is, that log-transformation might actually change the results of Scott-Knott itself. In the example below, we draw three random vectors, that fulfill the requirements of ScottKnott, i.e., are normally distributed, homoscedasticity, and independent.
+Another aspect which we have not explored above is, that log-transformation might actually change the results of Scott-Knott itself. In the example below, we draw three random vectors, that fulfill the requirements of ScottKnott, i.e., are normally distributed, homoscedastic, and independent.
 ```{r}
 count.same = 0
 count.different = 0
@@ -224,16 +224,16 @@ for( i in 1:100 ) {
 print(count.same)
 print(count.different)
 ```
-As can be seen, sometimes the results with using the log-transformation are different. The reason for these changes is the same as for the changes for the homoscedasticity: the relative distances between the data points change. Since the cluster analysis of Scott-Knott is based on the within group sum of squares, the cluster analysis is also affected by the changes. Our results above show that this may lead to different groupings, in case the log-transformation is used.
+Sometimes the results with using the log-transformation are different. The reason for these changes is the same as for the changes for the homoscedasticity: the relative distances between the data points change. Since the cluster analysis of Scott-Knott is based on the within group sum of squares, the cluster analysis is also affected by the changes. Our results above show that this may lead to different groupings, in case the log-transformation is used.
 
-As our results above already show, the impact on Cohen's d of the log transformation is relatively small.  However, it may be just enough to flipp a result over the 0.2 threshold for neglible effect size. Consider the following example:
+As our results above already show, the impact on Cohen's d of the log transformation is relatively small.  However, it may be just enough to flip a result over the 0.2 threshold for negligible effect size. Consider the following example:
 ```{r}
 x1= rep(c(0.95,0.97,0.94,0.96,0.84,0.86,0.86,0.95),40)
 x2 = x1-0.01
 cohensD(x=x1, y=x2)
 cohensD(x=log(x1+1), y=log(x2+1))
 ```
-Here, the log transformation did just that. With the log transformation, the effect size is neglible, without it, it is not. For the ScottKnottESD, this means with the log-transformation, the clusters would be merged, without it, they would not.
+Here, the log transformation did just that. With the log transformation, the effect size is negligible, without it, it is not. For the ScottKnottESD, this means with the log-transformation, the clusters would be merged, without it, they would not.
 
 Here is the result of standard Scott-Knott:
 ```{r}
@@ -247,7 +247,7 @@ And here of ScottKnottESD:
 sk_esd(data.frame(x1,x2))$groups
 ```
 
-As can be seen, the result is changed due to the log-transformation. 
+Again, the result is changed due to the log-transformation. 
 
 (Please note that in the example above, neither x1, nor x2 are normally distributed. Thus, Scott-Knott should actually not be applied at all. However, since the authors state in the paper that ScottKnottESD makes "no assumptions about the underlying distribution" [1], we used the example anyhow.)
 
@@ -258,3 +258,5 @@ Therefore, we urge to be cautios with applying the log-transformation to perform
 
 # References
 [1] Chakkrit Tantithamthavorn, Shane McIntosh, Ahmed E. Hassan, Kenichi Matsumoto: An Empirical Comparison of Model Validation Techniques for Defect Prediction Models, IEEE Transactions on Software Engineering, 43(1):1-18, 2017
+
+[2] https://github.com/klainfo/ScottKnottESD
