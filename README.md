@@ -7,7 +7,7 @@ Within this archive you find the replication kit for the article "Comments on Sc
 
 Requirements
 ============
-- None to view the generate HTML.
+- None to view the generated HTML.
 - R 3.3.2 to execute the R markdown yourself.
 
 Contents
@@ -17,4 +17,4 @@ Contents
 
 License
 =======
-The replication kit is under the Apchage License, Version 2.0.
+The replication kit is under the Apache License, Version 2.0.
